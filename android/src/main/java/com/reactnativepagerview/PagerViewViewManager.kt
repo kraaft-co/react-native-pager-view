@@ -2,6 +2,7 @@ package com.reactnativepagerview
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.facebook.infer.annotation.Assertions
@@ -31,6 +32,13 @@ class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>() {
     host.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     host.isSaveEnabled = false
     val vp = ViewPager2(reactContext)
+
+    // https://bladecoder.medium.com/fixing-recyclerview-nested-scrolling-in-opposite-direction-f587be5c1a04
+    val recyclerViewField = vp.javaClass.getDeclaredField("mRecyclerView")
+    recyclerViewField.isAccessible = true
+    val recyclerView = recyclerViewField.get(vp) as RecyclerView
+    recyclerView.enforceSingleScrollDirection()
+
     vp.adapter = ViewPagerAdapter()
     //https://github.com/callstack/react-native-viewpager/issues/183
     vp.isSaveEnabled = false
