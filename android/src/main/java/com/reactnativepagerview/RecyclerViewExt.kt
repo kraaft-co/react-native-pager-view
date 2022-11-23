@@ -5,13 +5,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import kotlin.math.abs
 
-fun RecyclerView.enforceSingleScrollDirection() {
-  val enforcer = SingleScrollDirectionEnforcer()
+interface OnScrollStopCallback {
+    fun onScrollStop()
+}
+
+fun RecyclerView.enforceSingleScrollDirection(
+  onScrollStopCallback: OnScrollStopCallback
+) {
+  val enforcer = SingleScrollDirectionEnforcer(onScrollStopCallback)
   addOnItemTouchListener(enforcer)
   addOnScrollListener(enforcer)
 }
 
-private class SingleScrollDirectionEnforcer : RecyclerView.OnScrollListener(), OnItemTouchListener {
+private class SingleScrollDirectionEnforcer(val onScrollStopCallback: OnScrollStopCallback) : RecyclerView.OnScrollListener(), OnItemTouchListener {
 
   private var scrollState = RecyclerView.SCROLL_STATE_IDLE
   private var scrollPointerId = -1
@@ -61,6 +67,7 @@ private class SingleScrollDirectionEnforcer : RecyclerView.OnScrollListener(), O
           if ((canScrollHorizontally && abs(dy) > abs(dx))
             || (canScrollVertically && abs(dx) > abs(dy))) {
             recyclerView.stopScroll()
+            onScrollStopCallback.onScrollStop();
           }
         }
       }
